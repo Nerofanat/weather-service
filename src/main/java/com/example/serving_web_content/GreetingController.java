@@ -40,7 +40,11 @@ public class GreetingController {
                 WeatherData data = response.getBody();
                 return new WeatherDto(
                         data.getName(), // Название города
-                        data.getMain().getTemp() // Температура
+                        data.getMain().getTemp(),
+                        data.getMain().getHumidity(),
+                        data.getWind().getSpeed(),
+                        data.getWind().getWindDirection(data.getWind().getDeg()),
+                        new WeatherDto.Coord(data.getCoord().getLat(), data.getCoord().getLon())
                 );
             }
         } catch (Exception e) {
@@ -66,10 +70,6 @@ public class GreetingController {
         public String getCity() {
             return city;
         }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
     }
 
     // Класс для ответа пользователю
@@ -78,8 +78,9 @@ public class GreetingController {
         private double temperature; // Температура
         private double humidity;
         private double windSpeed;
+        private String windDirection;
         // Но это не точно
-        private Coordinates coordinates;
+        private Coord coordinates;
 
         //Конструктор под ошибку
         public WeatherDto(String city, double temperature) {
@@ -87,12 +88,15 @@ public class GreetingController {
             this.temperature = temperature;
         }
 
+
+
         //тут создать полноценный конструктор на все поля
-        public WeatherDto(String city, double temperature, double humidity, double windSpeed, Coordinates coordinates) {
+        public WeatherDto(String city, double temperature, double humidity, double windSpeed, String windDirection,  Coord coordinates) {
             this.city = city;
             this.temperature = temperature;
             this.humidity = humidity;
             this.windSpeed = windSpeed;
+            this.windDirection = windDirection;
             this.coordinates = coordinates;
         }
 
@@ -100,11 +104,15 @@ public class GreetingController {
             return humidity;
         }
 
+        public String getWindDirection() {
+            return windDirection;
+        }
+
         public double getWindSpeed() {
             return windSpeed;
         }
 
-        public Coordinates getCoordinates() {
+        public Coord getCoordinates() {
             return coordinates;
         }
 
@@ -117,18 +125,22 @@ public class GreetingController {
         }
 
         // Вложенный класс для хранения температуры
-        public static class Coordinates {
+        public static class Coord {
             private double latitude;
             private double longitude;
 
-            public double latitude() {
+            public Coord(double latitude, double longitude) {
+                this.latitude = latitude;
+                this.longitude = longitude;
+            }
+
+            public double getLatitude() {
                 return latitude;
             }
 
-            public double longitude() {
+            public double getLongitude() {
                 return longitude;
             }
-
         }
     }
 
@@ -137,9 +149,16 @@ public class GreetingController {
         private String name; // Название города
         private Main main; // Основные данные о погоде
         //Добавляем все нужные поля
-        private Coord coord;
-        
+        private  Coordinates coord;
+        private Wind wind;
 
+        public  Coordinates getCoord() {
+            return coord;
+        }
+
+        public Wind getWind() {
+            return wind;
+        }
 
         public String getName() {
             return name;
@@ -159,17 +178,75 @@ public class GreetingController {
 
         // Вложенный класс для хранения температуры
         public static class Main {
-            private double temp; // Температура
+            private double temp;// Температура
+            private double humidity;
 
             public double getTemp() {
                 return temp;
             }
 
-            public void setTemp(double temp) {
-                this.temp = temp;
+            public double getHumidity() {
+                return humidity;
             }
+
+            //public void setTemp(double temp) {
+            //    this.temp = temp;
+        }
+
+        // Вложенный класс кооррдинат
+        public static class Coordinates {
+            private double lat;
+            private double lon;
+
+
+            public double getLon() {
+                return lon;
+            }
+
+            public double getLat() {
+                return lat;
+            }
+
+        }
+
+        // вложенный класс Ветер
+        public static class Wind {
+            private double speed;
+            private double deg;
+
+            public double getSpeed() {
+                return speed;
+            }
+
+            public double getDeg() {
+                return deg;
+            }
+
+            public String getWindDirection(double deg) {
+
+                if (deg >= 337.5 || deg < 22.5) {
+                    return "С (Северный)";
+                } else if (deg >= 22.5 && deg < 67.5) {
+                    return "СВ (Северо-Восточный)";
+                } else if (deg >= 67.5 && deg < 112.5) {
+                    return "В (Восточный)";
+                } else if (deg >= 112.5 && deg < 157.5) {
+                    return "ЮВ (Юго-Восточный)";
+                } else if (deg >= 157.5 && deg < 202.5) {
+                    return "Ю (Южный)";
+                } else if (deg >= 202.5 && deg < 247.5) {
+                    return "ЮЗ (Юго-Западный)";
+                } else if (deg >= 247.5 && deg < 292.5) {
+                    return "З (Западный)";
+                } else if (deg >= 292.5 && deg < 337.5) {
+                    return "СЗ (Северо-Западный)";
+                }
+                return "Неизвестно";
+            }
+
         }
     }
+}
+
     // тут напишем ручку для получения данных КЭша
     //@GetMapping ("cache")
-}
