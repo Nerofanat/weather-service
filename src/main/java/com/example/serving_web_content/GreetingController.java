@@ -1,89 +1,67 @@
+// Пакет приложения
 package com.example.serving_web_content;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+// Импорты необходимых классов
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Controller
+// Основной класс контроллера
+@RestController // Указывает, что это REST-контроллер
+@RequestMapping("/weather") // Базовый URL для всех методов контроллера
 public class GreetingController {
 
+    // Получение API ключа из конфигурационного файла
     @Value("${openweathermap.api.key}")
     private String apiKey;
 
-    @GetMapping("/greeting")
-    public String greeting(
-            @RequestParam(name = "name", required = false, defaultValue = "World") String name,
-            Map<String, Object> model
-    ) {
-        model.put("name", name);
-        return "greeting";
-    }
+    // Метод для получения погоды
+    @GetMapping // GET-метод
+    public WeatherDto getWeather(@RequestParam("city") String city) {
+        try {
+            // Получаем город прямо из параметра запроса
+            String cityName = city;
 
-    @GetMapping
-    public String main(Map<String, Object> model) {
-        model.put("some", "hello, letsCode!");
-        return "main";
-    }
+            // Формируем URL для запроса к OpenWeatherMap API
+            String url = buildWeatherUrl(cityName);
 
-    @GetMapping("/message")
-    @ResponseBody
-    public Map<String, Object> getMessage() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Это константное сообщение");
-        response.put("count", 123);
-        response.put("isActive", true);
-        return response;
-    }
+            // Создаем объект для работы с REST API
+            RestTemplate restTemplate = new RestTemplate();
 
-    @GetMapping("/message-dto")
-    @ResponseBody
-    public MessageDTO getMessageDTO() {
-        return new MessageDTO("Это сообщение через DTO");
-    }
+            // Отправляем GET-запрос к API и получаем ответ
+            ResponseEntity<WeatherData> response = restTemplate.getForEntity(url, WeatherData.class);
 
-    private static class MessageDTO {
-        private String message;
-
-        public MessageDTO(String message) {
-            this.message = message;
+            // Проверяем статус ответа
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                // Получаем тело ответа
+                WeatherData data = response.getBody();
+                return new WeatherDto(
+                        data.getName(), // Название города
+                        data.getMain().getTemp() // Температура
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Выводим ошибку в консоль
         }
-
-        public String getMessage() {
-            return message;
-        }
-    }
-
-    @PostMapping("/weather")
-    @ResponseBody
-    public WeatherDto getWeather(@RequestBody WeatherRequest request) {
-        String city = request.getCity();
-        String url = "https://api.openweathermap.org/data/2.5/weather?" +
-                "q=" + city +
-                "&appid=" + apiKey +
-                "&units=metric&lang=ru";
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<WeatherData> response = restTemplate.getForEntity(url, WeatherData.class);
-
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            WeatherData data = response.getBody();
-            return new WeatherDto(
-                    data.getName(),
-                    data.getMain().getTemp()
-            );
-        }
+        // Возвращаем ошибку, если что-то пошло не так
         return new WeatherDto("Ошибка", 0.0);
     }
 
-    public class WeatherRequest {
-        private String city;
+    // Метод для формирования URL запроса остается прежним
+    private String buildWeatherUrl(String city) {
+        return "https://api.openweathermap.org/data/2.5/weather?" +
+                "q=" + city + // Параметр города
+                "&appid=" + apiKey + // Ключ API
+                "&units=metric&lang=ru"; // Метрическая система и русский язык
+    }
+
+
+    // Класс для запроса от пользователя
+    public static class WeatherRequest {
+        private String city; // Поле для хранения названия города
 
         public String getCity() {
             return city;
@@ -94,13 +72,40 @@ public class GreetingController {
         }
     }
 
-    public class WeatherDto {
-        private String city;
-        private double temperature;
+    // Класс для ответа пользователю
+    public static class WeatherDto {
+        private String city; // Название города
+        private double temperature; // Температура
+        private double humidity;
+        private double windSpeed;
+        // Но это не точно
+        private Coordinates coordinates;
 
+        //Конструктор под ошибку
         public WeatherDto(String city, double temperature) {
             this.city = city;
             this.temperature = temperature;
+        }
+
+        //тут создать полноценный конструктор на все поля
+        public WeatherDto(String city, double temperature, double humidity, double windSpeed, Coordinates coordinates) {
+            this.city = city;
+            this.temperature = temperature;
+            this.humidity = humidity;
+            this.windSpeed = windSpeed;
+            this.coordinates = coordinates;
+        }
+
+        public double getHumidity() {
+            return humidity;
+        }
+
+        public double getWindSpeed() {
+            return windSpeed;
+        }
+
+        public Coordinates getCoordinates() {
+            return coordinates;
         }
 
         public String getCity() {
@@ -110,11 +115,31 @@ public class GreetingController {
         public double getTemperature() {
             return temperature;
         }
+
+        // Вложенный класс для хранения температуры
+        public static class Coordinates {
+            private double latitude;
+            private double longitude;
+
+            public double latitude() {
+                return latitude;
+            }
+
+            public double longitude() {
+                return longitude;
+            }
+
+        }
     }
 
-    public class WeatherData {
-        private String name;
-        private Main main;
+    // Класс для хранения данных, полученных от OpenWeatherMap
+    public static class WeatherData {
+        private String name; // Название города
+        private Main main; // Основные данные о погоде
+        //Добавляем все нужные поля
+        private Coord coord;
+        
+
 
         public String getName() {
             return name;
@@ -128,12 +153,13 @@ public class GreetingController {
             return main;
         }
 
-        public void setMain(Main main) {
-            this.main = main;
-        }
+        //public void setMain(Main main) {
+        //    this.main = main;
+        //}
 
+        // Вложенный класс для хранения температуры
         public static class Main {
-            private double temp;
+            private double temp; // Температура
 
             public double getTemp() {
                 return temp;
@@ -144,4 +170,6 @@ public class GreetingController {
             }
         }
     }
+    // тут напишем ручку для получения данных КЭша
+    //@GetMapping ("cache")
 }
