@@ -2,6 +2,9 @@
 package com.example.serving_web_content;
 
 // Импорты необходимых классов
+import com.example.serving_web_content.Domain.Message;
+import com.example.serving_web_content.repose.MessageRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -14,12 +17,17 @@ import org.springframework.http.MediaType;
 @RequestMapping("/weather") // Базовый URL для всех методов контроллера
 public class GreetingController {
 
+
+    @Autowired
+    private MessageRepo messageRepo;
+
     // Получение API ключа из конфигурационного файла
     @Value("${openweathermap.api.key}")
     private String apiKey;
 
     // Метод для получения погоды
     @GetMapping // GET-метод
+
     public WeatherDto getWeather(@RequestParam("city") String city) {
         try {
             // Получаем город прямо из параметра запроса
@@ -38,6 +46,8 @@ public class GreetingController {
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 // Получаем тело ответа
                 WeatherData data = response.getBody();
+                //Сейвимся в БД
+                saveToDatabase(data);
                 return new WeatherDto(
                         data.getName(), // Название города
                         data.getMain().getTemp(),
@@ -52,6 +62,20 @@ public class GreetingController {
         }
         // Возвращаем ошибку, если что-то пошло не так
         return new WeatherDto("Ошибка", 0.0);
+    }
+
+    //Метод сохранения в БД
+    private void saveToDatabase(WeatherData data) {
+        Message record = new Message();
+        record.setCity(data.getName());
+        record.setTemperature(data.getMain().getTemp());
+        record.setHumidity(data.getMain().getHumidity());
+        record.setWindSpeed(data.getWind().getSpeed());
+        record.setWindDirection(data.getWind().getWindDirection(data.getWind().getDeg()));
+        record.setLatitude(data.getCoord().getLat());
+        record.setLongitude(data.getCoord().getLon());
+
+        messageRepo.save(record);
     }
 
     // Метод для формирования URL запроса
