@@ -54,7 +54,7 @@ public class GreetingController {
         return new WeatherDto("Ошибка", 0.0);
     }
 
-    // Метод для формирования URL запроса остается прежним
+    // Метод для формирования URL запроса
     private String buildWeatherUrl(String city) {
         return "https://api.openweathermap.org/data/2.5/weather?" +
                 "q=" + city + // Параметр города
@@ -63,15 +63,6 @@ public class GreetingController {
     }
 
 
-    // Класс для запроса от пользователя
-    public static class WeatherRequest {
-        private String city; // Поле для хранения названия города
-
-        public String getCity() {
-            return city;
-        }
-    }
-
     // Класс для ответа пользователю
     public static class WeatherDto {
         private String city; // Название города
@@ -79,7 +70,6 @@ public class GreetingController {
         private double humidity;
         private double windSpeed;
         private String windDirection;
-        // Но это не точно
         private Coord coordinates;
 
         //Конструктор под ошибку
