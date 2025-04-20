@@ -5,7 +5,7 @@ FROM openjdk:17
 WORKDIR /app
 
 # Копируем артефакт jar-файл внутрь образа
-COPY target/serving-web-content.jar app.jar
+COPY target/serving-web-content-0.0.1-SNAPSHOT.jar app.jar
 
 # Запускаем приложение
 ENTRYPOINT ["java","-jar","/app/app.jar"]
