@@ -12,15 +12,15 @@ import bot.Bot; // Ваш класс Telegram-бота
 public class ServingWebContentApplication {
 
 	public static void main(String[] args) {
-		try {
-			// Регистрация и запуск Telegram-бота
-			TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-			botsApi.registerBot(new Bot()); // Передача вашего бота
-			System.out.println("Телеграм-бот успешно зарегистрирован и запущен!");
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-			System.err.println("Ошибка при регистрации Telegram-бота: " + e.getMessage());
-		}
+//		try {
+//			// Регистрация и запуск Telegram-бота
+//			TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+//			botsApi.registerBot(new Bot()); // Передача вашего бота
+//			System.out.println("Телеграм-бот успешно зарегистрирован и запущен!");
+//		} catch (TelegramApiException e) {
+//			e.printStackTrace();
+//			System.err.println("Ошибка при регистрации Telegram-бота: " + e.getMessage());
+//		}
 
 		// Запуск основного Spring Boot-приложения
 		SpringApplication.run(ServingWebContentApplication.class, args);
