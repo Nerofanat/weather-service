@@ -1,4 +1,4 @@
-package bot;
+package com.example.serving_web_content.bot;
 
 public class StartCommand {
     public static String execute() {

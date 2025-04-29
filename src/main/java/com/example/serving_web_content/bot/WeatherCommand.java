@@ -1,7 +1,5 @@
-package bot;
+package com.example.serving_web_content.bot;
 
-import com.example.serving_web_content.Domain.Message;
-import com.example.serving_web_content.GreetingController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WeatherCommand {

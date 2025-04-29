@@ -1,6 +1,6 @@
 package com.example.serving_web_content;
 
-import bot.Bot;
+import com.example.serving_web_content.bot.Bot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

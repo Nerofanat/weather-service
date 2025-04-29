@@ -1,4 +1,4 @@
-package bot;
+package com.example.serving_web_content.bot;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

@@ -1,4 +1,4 @@
-package bot;
+package com.example.serving_web_content.bot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
