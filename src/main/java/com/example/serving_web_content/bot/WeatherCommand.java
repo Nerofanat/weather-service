@@ -1,7 +1,9 @@
 package com.example.serving_web_content.bot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WeatherCommand {
 
     public static String execute(String city) {

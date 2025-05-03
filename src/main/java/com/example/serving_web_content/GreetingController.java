@@ -33,7 +33,22 @@ public class GreetingController {
     private String apiKey;
 
     //Список городов которые нужны нам для сохранения данным по ним в кэш
-    private final List<String> validCities = Arrays.asList("Москва", "Лондон", "Париж", "Берлин", "Рим", "Мадрид", "Токио", "Нью-Йорк", "Пекин", "Канберра");
+    private final List<String> validCities = Arrays.asList(
+            "москва",
+            "лондон",
+            "париж",
+            "берлин",
+            "рим",
+            "мадрид",
+            "токио",
+            "нью-йорк",
+            "пекин",
+            "канберра"
+    );
+
+    public boolean isValidCity(String cityName) {
+        return validCities.contains(cityName.toLowerCase());
+    }
 
     // Создаем простой кэш без механизма загрузки
     private final Cache<String, WeatherDto> weatherCache =
@@ -76,7 +91,7 @@ public class GreetingController {
                 );
 
                 // Кэшируем данные, если город разрешён
-                if (validCities.contains(city)) {
+                if (isValidCity(city)) {
                     weatherCache.put(city, weather);
                 }
 
@@ -87,6 +102,10 @@ public class GreetingController {
         }
         // Возвращаем ошибку, если что-то пошло не так
         return new WeatherDto("Ошибка", 0.0);
+    }
+
+    public Cache<String, WeatherDto> getWeatherCache() {
+        return weatherCache;
     }
 
     //Метод сохранения в БД
@@ -288,29 +307,32 @@ public class GreetingController {
     // тут напишем ручку для получения данных КЭша
     //@GetMapping ("cache")
     @GetMapping(value="/cache", produces=MediaType.APPLICATION_JSON_VALUE)
-    public List<Map<String, Object>> getAllCachedWeather() {
-        Collection<WeatherDto> values = weatherCache.asMap().values(); // Читаем все доступные записи из кэша
-        if (values.isEmpty()) {
-            return Collections.singletonList(Map.of("message", "No data in cache"));
-        }
-        return values.stream() //Преобразует исходную коллекцию (Collection<WeatherDto>) в поток данных, позволяя применять последующие операции (такие как map и collect).
-                .map(this::convertToOutputFormat) //Применяет к каждому элементу потока метод convertToOutputFormat, который преобразует объект WeatherDto в карту (с нужными полями для удобства клиента).
-                .collect(Collectors.toList()); //Собирает преобразованные элементы (карты) в обычный список (List<Map<String,Object>>), который можно передать клиенту или сохранить для дальнейшего использования.
+    public Collection<WeatherDto> getAllCachedWeatherAsDtos() {
+        return weatherCache.asMap().values();
     }
+//    public List<Map<String, Object>> getAllCachedWeather() {
+//        Collection<WeatherDto> values = weatherCache.asMap().values(); // Читаем все доступные записи из кэша
+//        if (values.isEmpty()) {
+//            return Collections.singletonList(Map.of("message", "No data in cache"));
+//        }
+//        return values.stream() //Преобразует исходную коллекцию (Collection<WeatherDto>) в поток данных, позволяя применять последующие операции (такие как map и collect).
+//                .map(this::convertToOutputFormat) //Применяет к каждому элементу потока метод convertToOutputFormat, который преобразует объект WeatherDto в карту (с нужными полями для удобства клиента).
+//                .collect(Collectors.toList()); //Собирает преобразованные элементы (карты) в обычный список (List<Map<String,Object>>), который можно передать клиенту или сохранить для дальнейшего использования.
+//    }
 
-    // Метод конвертации для нужного формата
-    private Map<String, Object> convertToOutputFormat(WeatherDto dto) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("city", dto.getCity());
-        result.put("temperature", dto.getTemperature());
-        result.put("humidity", dto.getHumidity());
-        result.put("windDirection", dto.getWindDirection());
-        result.put("windSpeed", dto.getWindSpeed());
-        result.put("coordinates", Map.of(
-                "latitude", dto.getCoordinates().getLatitude(),
-                "longitude", dto.getCoordinates().getLongitude()
-        ));
-        return result;
-    }
+//    // Метод конвертации для нужного формата
+//    private Map<String, Object> convertToOutputFormat(WeatherDto dto) {
+//        Map<String, Object> result = new HashMap<>();
+//        result.put("city", dto.getCity());
+//        result.put("temperature", dto.getTemperature());
+//        result.put("humidity", dto.getHumidity());
+//        result.put("windDirection", dto.getWindDirection());
+//        result.put("windSpeed", dto.getWindSpeed());
+//        result.put("coordinates", Map.of(
+//                "latitude", dto.getCoordinates().getLatitude(),
+//                "longitude", dto.getCoordinates().getLongitude()
+//        ));
+//        return result;
+//    }
 }
 

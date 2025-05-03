@@ -14,10 +14,13 @@ public class TelegramBotRegistrar implements ApplicationRunner {
     @Autowired
     private TelegramBotsApi botsApi;
 
+    @Autowired
+    private Bot bot; // Пусть Spring создает экземпляр бота
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         try {
-            botsApi.registerBot(new Bot());
+            botsApi.registerBot(bot); // Регистрируем бот, созданный Spring
             System.out.println("Телеграм-бот успешно зарегистрирован и запущен!");
         } catch (TelegramApiException e) {
             e.printStackTrace();

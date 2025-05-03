@@ -1,5 +1,8 @@
 package com.example.serving_web_content.bot;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class StartCommand {
     public static String execute() {
         return """
