@@ -1,5 +1,6 @@
 package com.example.serving_web_content.bot;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,16 @@ public class WeatherCommand {
     public static String execute(String city) {
         try {
             var response = HttpClient.getInstance().sendGet("/weather?city=" + city);
+
+            // Парсим ответ с помощью Jackson
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response);
+
+            // Проверяем наличие ошибки
+            if (root.has("city") && root.get("city").asText().equals("Ошибка")) {
+                return "🚫 Город не найден.";
+            }
+
             return formatWeather(response);
         } catch (Exception e) {
             return "😕 Ошибка получения данных: " + e.getMessage();
@@ -37,6 +48,7 @@ public class WeatherCommand {
             );
         } catch (Exception ex) {
             return "😕 Произошла ошибка при разборе данных: " + ex.getMessage();
+
         }
     }
 }

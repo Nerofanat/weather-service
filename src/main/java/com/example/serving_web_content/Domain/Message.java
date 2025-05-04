@@ -1,8 +1,6 @@
 package com.example.serving_web_content.Domain;
 
-import com.example.serving_web_content.GreetingController;
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 public class Message {
