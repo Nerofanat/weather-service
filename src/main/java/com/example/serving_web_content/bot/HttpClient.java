@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class HttpClient {
     private static OkHttpClient client = new OkHttpClient();
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = "http://serving-web-content.onrender.com";
 
 
     private HttpClient() {} // Сделать приватным, чтобы предотвратить создание экземпляров
