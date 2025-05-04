@@ -32,4 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### Конфиденциальные настройки ###application.properties
+### Конфиденциальные настройки ###
+application.properties
+*.properties
